@@ -13,9 +13,17 @@ const GET_CHARACTERS = "GET_CHARACTERS";
 const GET_CHARACTERS_SUCCESS = "GET_CHARACTERS_SUCCESS";
 const GET_CHARACTERS_ERROR = "GET_CHARACTERS_ERROR";
 
+const REMOVE_CHARACTER = "REMOVE_CHARACTER";
+
 //reducers
 export default function reducer(state = initialData, action) {
   switch (action.type) {
+    case REMOVE_CHARACTER:
+      return {
+        ...state,
+        array: action.payload
+      };
+
     case GET_CHARACTERS:
       return {
         ...state,
@@ -42,6 +50,12 @@ export default function reducer(state = initialData, action) {
 }
 
 //actions (thunk)
+export const removeCharacterAction = () => (dispatch, getState) => {
+  let { array } = getState().characters;
+  array.shift();
+  dispatch({ type: REMOVE_CHARACTER, payload: [...array] });
+};
+
 export const getCharactersAction = () => async (dispatch, getState) => {
   dispatch({
     type: GET_CHARACTERS
