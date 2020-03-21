@@ -1,17 +1,23 @@
 import React from "react";
 import Card from "../card/Card";
 import styles from "./home.module.css";
-import { connect } from "react-redux";
 import { removeCharacterAction } from "../../redux/charsDuck";
+import { useSelector, useDispatch } from "react-redux";
 
-function Home({ chars, removeCharacterAction }) {
+function Home() {
+  const chars = useSelector(state => state.characters.array);
+
+  const dispatch = useDispatch();
+  const removeCharacterActionComponent = () =>
+    dispatch(removeCharacterAction());
+
   function renderCharacter() {
     let char = chars[0];
     return <Card leftClick={nextCharacter} {...char} />;
   }
 
   function nextCharacter() {
-    removeCharacterAction();
+    removeCharacterActionComponent();
   }
 
   return (
@@ -22,10 +28,11 @@ function Home({ chars, removeCharacterAction }) {
   );
 }
 
-function mapState(state) {
-  return {
-    chars: state.characters.array
-  };
-}
+// function mapState(state) {
+//   return {
+//     chars: state.characters.array
+//   };
+// }
 
-export default connect(mapState, { removeCharacterAction })(Home);
+// export default connect(mapState, { removeCharacterAction })(Home);
+export default Home;

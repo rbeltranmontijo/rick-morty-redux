@@ -1,5 +1,5 @@
 import { createStore, combineReducers, compose, applyMiddleware } from "redux";
-import userReducer from "./userDuck";
+import userReducer, { restoreSessionAction } from "./userDuck";
 import charsReducer, { getCharactersAction } from "./charsDuck";
 import thunk from "redux-thunk";
 
@@ -15,6 +15,8 @@ export default function generateStore() {
     rootReducer,
     composeEnhancers(applyMiddleware(thunk))
   );
+  // Se ejecuta para saber si el usuario esa en el localStorage
+  restoreSessionAction()(store.dispatch);
 
   // Se ejecuta la funcion para conseguir los personajes
   getCharactersAction()(store.dispatch, store.getState);
