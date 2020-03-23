@@ -7,7 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import "font-awesome/css/font-awesome.css";
 import { Provider } from "react-redux";
 import gereateStore from "./redux/store";
-import { ApolloClient } from "apollo-boost";
+import ApolloClient from "apollo-boost";
 import { ApolloProvider } from "react-apollo";
 
 let store = gereateStore();
@@ -27,7 +27,7 @@ let WhithStore = () => (
   </Provider>
 );
 
-let WhiteApollo = (
+let WhiteApollo = () => (
   <ApolloProvider client={client}>
     <WhithStore />
   </ApolloProvider>
