@@ -89,14 +89,15 @@ export const restoreFavsFromLocalStorage = () => (dispatch, getState) => {
   storage = JSON.parse(storage);
 
   if (storage && storage.user) {
-    let favs = localStorage.getItem("favs");
-    favs = JSON.parse(favs);
-    if (favs.length > 0) {
-      dispatch({
-        type: GET_FAVS_SUCCESS,
-        payload: [...favs]
-      });
-    }
+    // let favs = localStorage.getItem("favs");
+    // favs = JSON.parse(favs);
+    // if (favs.length > 0) {
+    //   dispatch({
+    //     type: GET_FAVS_SUCCESS,
+    //     payload: [...favs]
+    //   });
+    // }
+    retreiveFavs()(dispatch, getState);
   }
 };
 export const retreiveFavs = () => (dispatch, getState) => {
