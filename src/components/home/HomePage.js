@@ -1,7 +1,10 @@
 import React from "react";
 import Card from "../card/Card";
 import styles from "./home.module.css";
-import { removeCharacterAction } from "../../redux/charsDuck";
+import {
+  removeCharacterAction,
+  addToFavoritesAction
+} from "../../redux/charsDuck";
 import { useSelector, useDispatch } from "react-redux";
 
 function Home() {
@@ -11,9 +14,15 @@ function Home() {
   const removeCharacterActionComponent = () =>
     dispatch(removeCharacterAction());
 
+  const addToFavoritesActionComponent = () => dispatch(addToFavoritesAction());
+
+  function addFav() {
+    addToFavoritesActionComponent();
+  }
+
   function renderCharacter() {
     let char = chars[0];
-    return <Card leftClick={nextCharacter} {...char} />;
+    return <Card rightClick={addFav} leftClick={nextCharacter} {...char} />;
   }
 
   function nextCharacter() {
