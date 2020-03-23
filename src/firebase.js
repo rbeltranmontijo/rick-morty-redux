@@ -16,6 +16,15 @@ firebase.initializeApp(firebaseConfig);
 
 let db = firebase.firestore().collection("favs");
 
+export function getFavorities(uid) {
+  return db
+    .doc(uid)
+    .get()
+    .then(snap => {
+      return snap.data().array;
+    });
+}
+
 export function updateDB(array, uid) {
   db.doc(uid).set({ array });
 }

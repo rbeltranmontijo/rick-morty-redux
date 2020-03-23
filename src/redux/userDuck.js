@@ -1,4 +1,5 @@
 import { loginWithGoogle, signOutGoogle } from "../firebase";
+import { retreiveFavs, restoreFavsFromLocalStorage } from "./charsDuck";
 
 // state inicial
 let initialData = {
@@ -52,39 +53,39 @@ export let logOutAction = () => (dispatch, getState) => {
   localStorage.removeItem("storage");
 };
 
-export let restoreSessionAction = () => dispatch => {
+export let doGoogleLoginAction = () => async (dispatch, getState) => {
+  dispatch({
+    type: LOGIN
+  });
+  try {
+    const user = await loginWithGoogle();
+    dispatch({
+      type: LOGIN_SUCCESS,
+      payload: {
+        uid: user.uid,
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL
+      }
+    });
+    saveStorage(getState());
+    retreiveFavs()(dispatch, getState);
+  } catch (e) {
+    console.log(e);
+    dispatch({
+      type: LOGIN_ERROR,
+      payload: e.message
+    });
+  }
+};
+export let restoreSessionAction = () => async dispatch => {
   let storage = localStorage.getItem("storage");
   storage = JSON.parse(storage);
+
   if (storage && storage.user) {
     dispatch({
       type: LOGIN_SUCCESS,
       payload: storage.user
     });
   }
-};
-
-export let doGoogleLoginAction = () => (dispatch, getState) => {
-  dispatch({
-    type: LOGIN
-  });
-  return loginWithGoogle()
-    .then(user => {
-      dispatch({
-        type: LOGIN_SUCCESS,
-        payload: {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL
-        }
-      });
-      saveStorage(getState());
-    })
-    .catch(e => {
-      console.log(e);
-      dispatch({
-        type: LOGIN_ERROR,
-        payload: e.message
-      });
-    });
 };
