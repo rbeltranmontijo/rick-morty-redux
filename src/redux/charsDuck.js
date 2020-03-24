@@ -1,15 +1,19 @@
 import axios from "axios";
 import { updateDB, getFavorities } from "../firebase";
+import ApolloClient, { gpl, gql } from "apollo-boost";
 
 // constantes
 let initialData = {
   fetching: false,
   array: [],
   current: {},
-  favorites: []
+  favorites: [],
+  nextPage: 1
 };
 
 const URL = "https://rickandmortyapi.com/api/character";
+
+const client = new ApolloClient({ uri: "https://rickandmortyapi.com/graphql" });
 
 const GET_CHARACTERS = "GET_CHARACTERS";
 const GET_CHARACTERS_SUCCESS = "GET_CHARACTERS_SUCCESS";
@@ -22,9 +26,16 @@ const GET_FAVS = "GET_FAVS";
 const GET_FAVS_SUCCESS = "GET_FAVS_SUCCESS";
 const GET_FAVS_ERROR = "GET_FAVS_ERROR";
 
+const UPDATE_PAGE = "UPDATE_PAGE";
+
 //reducers
 export default function reducer(state = initialData, action) {
   switch (action.type) {
+    case UPDATE_PAGE:
+      return {
+        ...state,
+        nextPage: action.payload
+      };
     case GET_FAVS:
       return {
         ...state,
@@ -137,24 +148,73 @@ export const addToFavoritesAction = () => (dispatch, getState) => {
 export const removeCharacterAction = () => (dispatch, getState) => {
   let { array } = getState().characters;
   array.shift();
+  if (!array.length) {
+    getCharactersAction()(dispatch, getState);
+    return;
+  }
   dispatch({ type: REMOVE_CHARACTER, payload: [...array] });
 };
 
 export const getCharactersAction = () => async (dispatch, getState) => {
+  console.log("entrando en get characters");
+  let query = gql`
+    query($page: Int) {
+      characters(page: $page) {
+        info {
+          pages
+          next
+          prev
+        }
+        results {
+          name
+          image
+        }
+      }
+    }
+  `;
+
   dispatch({
     type: GET_CHARACTERS
   });
-  try {
-    const respuesta = await axios.get(URL);
-    return dispatch({
-      type: GET_CHARACTERS_SUCCESS,
-      payload: respuesta.data.results
+  let { nextPage } = getState().characters;
+  return client
+    .query({
+      query,
+      variables: { page: nextPage }
+    })
+    .then((data, error) => {
+      console.log(data);
+      if (error) {
+        dispatch({
+          type: GET_CHARACTERS_ERROR,
+          payload: error
+        });
+        return;
+      }
+
+      dispatch({
+        type: GET_CHARACTERS_SUCCESS,
+        payload: data.data.characters.results
+      });
+      dispatch({
+        type: UPDATE_PAGE,
+        payload: data.data.characters.info.next
+          ? data.data.characters.info.next
+          : 1
+      });
     });
-  } catch (error) {
-    console.log(error);
-    dispatch({
-      type: GET_CHARACTERS_ERROR,
-      payload: error.err.response.message
-    });
-  }
+
+  // try {
+  //   const respuesta = await axios.get(URL);
+  //   return dispatch({
+  //     type: GET_CHARACTERS_SUCCESS,
+  //     payload: respuesta.data.results
+  //   });
+  // } catch (error) {
+  //   console.log(error);
+  //   dispatch({
+  //     type: GET_CHARACTERS_ERROR,
+  //     payload: error.err.response.message
+  //   });
+  // }
 };
